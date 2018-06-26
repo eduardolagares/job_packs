@@ -6,19 +6,23 @@ module JobPacks
       job_pack_items << item
     end
 
-    def refresh_status
+    def update_progress
       job_pack_items.each(&:refresh_job_status)
-
-      self.total_items_done = job_pack_items.done.count
       self.total_items_with_error = job_pack_items.error.count
       self.total_items_waiting = job_pack_items.waiting.count
       self.total_items_running = job_pack_items.running.count
+      self.total_items_done = job_pack_items.done.count
+      self.done = total_items_done == total_items
 
-      save! if changed?
+      save!
     end
 
     def progress
-      ((total_items_done.to_f * 100) / job_pack_items.count.to_f).to_f
+      ((total_items_done.to_f * 100) / total_items.to_f).to_f
+    end
+
+    def total_items
+      job_pack_items.count.to_i
     end
   end
 end

@@ -27,6 +27,7 @@ module JobPacks
     attr_accessor :delayed_job
 
     before_create :run_job_and_set_status
+    after_commit :update_pack
 
     def refresh_job_status
       self.status = if job
@@ -45,6 +46,10 @@ module JobPacks
     end
 
     private
+
+    def update_pack
+      job_pack.update_progress
+    end
 
     def run_job_and_set_status
       self.job = Delayed::Job.enqueue delayed_job
