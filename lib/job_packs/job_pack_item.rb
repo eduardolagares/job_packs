@@ -8,6 +8,8 @@ module JobPacks
     ERROR = 2
     DONE = 3
 
+    attr_accessor :old_status
+
     scope :done, -> {
       where(status: DONE)
     }
@@ -27,9 +29,9 @@ module JobPacks
     attr_accessor :delayed_job
 
     before_create :run_job_and_set_status
-    after_commit :update_pack
 
     def refresh_job_status
+      self.old_status = self.status
       self.status = if job
                       if !job.locked_at.nil?
                         RUNNING
@@ -46,10 +48,6 @@ module JobPacks
     end
 
     private
-
-    def update_pack
-      job_pack.update_progress
-    end
 
     def run_job_and_set_status
       self.job = Delayed::Job.enqueue delayed_job

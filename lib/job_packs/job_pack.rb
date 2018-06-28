@@ -6,14 +6,13 @@ module JobPacks
       job_pack_items << item
     end
 
-    def update_progress
-      job_pack_items.each(&:refresh_job_status)
+    def update_progress(force_item_refresh = false )
+      job_pack_items.each(&:refresh_job_status) if force_item_refresh
       self.total_items_with_error = job_pack_items.error.count
       self.total_items_waiting = job_pack_items.waiting.count
       self.total_items_running = job_pack_items.running.count
       self.total_items_done = job_pack_items.done.count
       self.done = total_items_done == total_items
-
       save!
     end
 
